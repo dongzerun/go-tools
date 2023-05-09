@@ -95,11 +95,13 @@ func getFuncMap() template.FuncMap {
 		"add":                    add,
 		"paramsWithType":         paramsWithType,
 		"paramsNoType":           paramsNoType,
+		"paramsListUnFold":       paramsListUnFold,
 		"hasField":               hasField,
 		"testData":               testData,
 		"fieldsList":             fieldsList,
 		"fieldsListWithTag":      fieldsListWithTag,
 		"fieldsListWithTagValue": fieldsListWithTagValue,
+		"getEmptyValueForType":   getEmptyValueForType,
 	}
 }
 
@@ -159,6 +161,26 @@ func isMap(field Field) bool {
 	return strings.Contains(field.Type, "map")
 }
 
+func getEmptyValueForType(name string) string {
+	if strings.HasPrefix(name, "map") ||
+		strings.HasPrefix(name, "[]") ||
+		strings.HasPrefix(name, "*") {
+		return "nil"
+	}
+
+	switch name {
+	case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
+		return "0"
+	case "byte":
+		return "''"
+	case "string":
+		return ""
+	}
+
+	// others are supposed to be empty struct
+	return name + "{}"
+}
+
 func add(inputs ...interface{}) int64 {
 	var output int64
 	for _, value := range inputs {
@@ -197,6 +219,20 @@ func paramsList(method Method, includeType bool) string {
 		output += isNotLast(len(method.Params), outerIndex, ", ")
 	}
 
+	return output
+}
+
+func paramsListUnFold(method Method) string {
+	output := ""
+	for outerIndex, param := range method.Params {
+		for innerIndex, name := range param.Names {
+			output += name + isNotLast(len(param.Names), innerIndex, ", ")
+			if (len(method.Params)-1) == outerIndex && strings.HasPrefix(param.Type, "...") {
+				output += "..."
+			}
+		}
+		output += isNotLast(len(method.Params), outerIndex, ", ")
+	}
 	return output
 }
 

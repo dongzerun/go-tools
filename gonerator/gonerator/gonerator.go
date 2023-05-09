@@ -209,7 +209,8 @@ func (g *Gonerator) toBytes() []byte {
 
 func (g *Gonerator) buildHeader() {
 	if isGo(g.data.OutputFile) {
-		g.printf("// Code gonerated by \"github.com/corsc/go-tools/gonerator\"\n// DO NOT EDIT\n")
+		g.printf("// Code gonerated by \"github.com/dongzerun/go-tools/gonerator\"\n// DO NOT EDIT\n")
+		g.printf("// Original source from \"github.com/corsc/go-tools/gonerator\"\n// DO NOT EDIT\n")
 		g.printf("// @" + "generated \n")
 		g.printf("//\n")
 		g.printf("// Args:\n")
